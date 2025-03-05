@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">TNK115_Project</string>
+    <string name="button">Get data</string>
+    <string name="buttonUpdate">Update values</string>
+    <string name="update">Update data</string>
+    <string name="bike">Bike</string>
+    <string name="walk">Walk</string>
+    <string name="reduced">Reduced</string>
+    <string name="currOut">You are outside the area!</string>
+    <string name="markOut">The marker is outside the area!</string>
+    <string name="pave">Pavement</string>
+    <string name="elev">Elevation</string>
+    <string name="air">Air quality</string>
+    <string name="tt">Travel time</string>
+    <string name="noise">Noise</string>
+    <string name="temp">Temperature</string>
+    <string name="overall">General feeling</string>
+    <string name="linkInfo">The sliders represent the current values of the road.\nPlease change them according to your preferences.</string>
+    <string name="stairs">Toggle stairs</string>
+    <string name="info">Slide to the right to increase impact of a parameter to the route you get.</string>
+    <string name="error_report">Error report</string>
+    <string name="felrapport">Felrapport</string>
+</resources>

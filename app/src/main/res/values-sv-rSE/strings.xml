@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TNK115_Project</string>
+    <string name="button">Hämta data</string>
+    <string name="buttonUpdate">Uppdatera värden</string>
+    <string name="update">Uppdatera data</string>
+    <string name="bike">Cykel</string>
+    <string name="walk">Gång</string>
+    <string name="reduced">Reducerad</string>
+    <string name="currOut">Du är utanför området!</string>
+    <string name="markOut">Markören är utanför området!</string>
+    <string name="pave">Vägkvalitet</string>
+    <string name="elev">Lutning</string>
+    <string name="air">Luftkvalitet</string>
+    <string name="tt">Restid</string>
+    <string name="noise">Ljudnivå</string>
+    <string name="temp">Temperatur</string>
+    <string name="overall">Generell känsla</string>
+    <string name="stairs">Trappor</string>
+    <string name="linkInfo">Reglagen visar vägens nuvarande värden.\nVänligen justera dem enligt dina preferenser.</string>
+    <string name="info">Dra till höger för att öka effekten av en paramter på din rutt.</string>
+    <string name="error_report">Error report</string>
+    <string name="felrapport">Felrapport</string>
+</resources>
