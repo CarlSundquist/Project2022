@@ -42,7 +42,10 @@ public class ErrorReportDetailActivity extends AppCompatActivity {
 
             // Ladda och rotera bilden om den finns
             if (report.imagePath != null) {
-                Bitmap bitmap = BitmapFactory.decodeFile(report.imagePath);
+                byte[] imagebytearray = android.util.Base64.decode(report.imagePath, android.util.Base64.DEFAULT);
+
+                //Bitmap bitmap = BitmapFactory.decodeFile(report.imagePath);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imagebytearray, 0, imagebytearray.length);
                 bitmap = rotateBitmapIfNeeded(bitmap, report.imagePath);
                 imageView.setImageBitmap(bitmap);
             }

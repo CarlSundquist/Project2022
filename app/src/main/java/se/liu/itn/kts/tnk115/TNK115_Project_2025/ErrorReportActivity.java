@@ -28,6 +28,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.slider.Slider;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -159,16 +160,29 @@ public class ErrorReportActivity extends AppCompatActivity {
 
 
 
-    private void saveImageToFile() {
+    private String saveImageToFile() {
         try {
+
             File outputDir = getCacheDir();
             File imageFile = File.createTempFile("error_image", ".jpg", outputDir);
             FileOutputStream fos = new FileOutputStream(imageFile);
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.close();
             imagePath = imageFile.getAbsolutePath();
+
+            Bitmap bm = BitmapFactory.decodeFile(imagePath);
+            ByteArrayOutputStream baos=new ByteArrayOutputStream();
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] b = baos.toByteArray();
+            baos.close();
+
+
+            return android.util.Base64.encodeToString(b, android.util.Base64.DEFAULT);
+
+
         } catch (Exception e) {
             e.printStackTrace();
+            return "Error";
         }
     }
 
@@ -193,8 +207,8 @@ public class ErrorReportActivity extends AppCompatActivity {
             Toast.makeText(this, "Vänligen fyll i alla fält och ta en bild", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        ErrorReport errorReport = new ErrorReport(desc, severity, timestamp, currentLocation.getLatitude(), currentLocation.getLongitude(), imagePath);
+        String image64= saveImageToFile();
+        ErrorReport errorReport = new ErrorReport(desc, severity, timestamp, currentLocation.getLatitude(), currentLocation.getLongitude(), image64);
         MainActivity.errorReportDao.insertErrorReport(errorReport);
 
         Toast.makeText(this, "Felrapport inskickad!", Toast.LENGTH_SHORT).show();
