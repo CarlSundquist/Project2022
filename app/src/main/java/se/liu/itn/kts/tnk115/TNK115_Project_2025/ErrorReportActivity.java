@@ -11,7 +11,9 @@ import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -28,10 +30,17 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.slider.Slider;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -46,6 +55,8 @@ public class ErrorReportActivity extends AppCompatActivity {
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationClient;
     private String imagePath;
+    private static String address = "130.236.81.13";
+    private static int port = 8718;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +76,13 @@ public class ErrorReportActivity extends AppCompatActivity {
         captureButton.setOnClickListener(v -> {
             dispatchTakePictureIntent();
         });
-        submitButton.setOnClickListener(v -> submitReport());
+        submitButton.setOnClickListener(v -> {
+            try {
+                submitReport();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
         backButton.setOnClickListener(v -> finish());
 
         Button viewReportsButton = findViewById(R.id.buttonViewReports);
@@ -198,7 +215,8 @@ public class ErrorReportActivity extends AppCompatActivity {
         });
     }
 
-    private void submitReport() {
+    private void submitReport() throws JSONException {
+
         String desc = description.getText().toString().trim();
         int severity = (int) severitySlider.getValue();
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
@@ -207,11 +225,84 @@ public class ErrorReportActivity extends AppCompatActivity {
             Toast.makeText(this, "Vänligen fyll i alla fält och ta en bild", Toast.LENGTH_SHORT).show();
             return;
         }
-        String image64= saveImageToFile();
+        String image64 = saveImageToFile();
         ErrorReport errorReport = new ErrorReport(desc, severity, timestamp, currentLocation.getLatitude(), currentLocation.getLongitude(), image64);
         MainActivity.errorReportDao.insertErrorReport(errorReport);
 
         Toast.makeText(this, "Felrapport inskickad!", Toast.LENGTH_SHORT).show();
         finish();
+
+
+        JSONObject message = errorReport.getJson();
+        Log.d("ErrorReportActivity", "Trying to send error report (PostGres): " + message.toString());
+        //MainActivity.submitErrorReport(message);
+        TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(TELEPHONY_SERVICE);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(message.toString());
+        builder.append((char) '|');
+
+        byte[] packetToSend = builder.toString().getBytes();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        JSONObject responseMessage = null;
+        try {
+            InetAddress serverAddrIP = InetAddress.getByName(address);
+            Socket socket = new Socket(serverAddrIP, port);
+            PrintStream exit = new PrintStream(socket.getOutputStream(), false);
+            InputStream inputStream = socket.getInputStream();
+            exit.write(packetToSend);
+            Log.i("ErrorReportActivity", "Packet Sent ");
+            exit.flush();
+
+            ByteArrayOutputStream holder = new ByteArrayOutputStream();
+            int outer_loop_limit = 0;
+
+            while (socket.isConnected() && outer_loop_limit < 1) {
+                char curr;
+                curr = (char) inputStream.read();
+
+                if (curr == '|') {
+                    break;
+                }
+
+                holder.write(curr);
+            }
+            String response = holder.toString();
+
+            response = response.trim();
+            Log.d("ErrorReportActivity", "Response: " + response);
+            if (response.startsWith("{") || response.startsWith("[")) {
+                try {
+                    if (response.startsWith("[")) {
+                        response = response.substring(1, message.length() - 1);
+                        responseMessage = new JSONObject(response);
+                    } else {
+                        responseMessage = new JSONObject(response);
+                    }
+                } catch (JSONException e) {
+                    Log.w("ErrorReportActivity", "JSONException 1: " + e.toString());
+                }
+            }
+
+            exit.close();
+            socket.close();
+
+        } catch (IOException e) {
+            Log.w("ErrorReportActivity", "IOException: " + e.toString());
+        }
+        Log.d("ErrorReportActivity", "Update message sent!");
+        Log.d("ErrorReportActivity", message.toString());
+        Log.d("ErrorReportActivity", "Update message received");
+        if (responseMessage == null) Log.w("UpdateActivity", "Response null");
+        else Log.d("ErrorReportActivity", responseMessage.toString());
+
+        /*try {
+            if (responseMessage.has(input)) {
+                result = responseMessage.getString(input);
+            }
+        } catch (JSONException e) {
+            Log.w("UpdateActivity", "JSONException: " + e.toString());
+        }*/
     }
 }

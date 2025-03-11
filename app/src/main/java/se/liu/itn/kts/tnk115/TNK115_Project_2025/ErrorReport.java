@@ -4,6 +4,9 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 @Entity(tableName = "error_reports")
 public class ErrorReport {
 
@@ -40,5 +43,19 @@ public class ErrorReport {
     @Override
     public String toString() {
         return "Felrapport " + timestamp;
+    }
+
+    public JSONObject getJson() throws JSONException {
+        JSONObject message = new JSONObject();
+        message.put("message_type", "error_report");
+        message.put("id", 69);
+        message.put("description", description);
+        message.put("severity", severity);
+        message.put("timestamp", timestamp);
+        message.put("latitude", latitude);
+        message.put("longitude", longitude);
+        message.put("imagepath", imagePath);
+
+        return message;
     }
 }

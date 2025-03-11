@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static LinkDao linkDao;
     public static ErrorReportDao errorReportDao;
     public static ErrorReportDatabase errorReportDB;
-    private String address = "130.236.81.13";
-    private int port = 8718;
+    private static String address = "130.236.81.13";
+    private static int port = 8718;
     private GoogleMap map = null;
     private Polyline line;
     private Marker marker;
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             data = true;
             button.setVisibility(View.INVISIBLE);
             guideline.setGuidelinePercent(0.0f);
-            Log.d("MainActivity","Button visibility: " + button.getVisibility());
+            Log.d("MainActivity", "Button visibility: " + button.getVisibility());
         } else {
             data = false;
             button.setVisibility(View.VISIBLE);
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mode = 2;
                 }
                 if (data) getLastKnownLocation();
-                Log.d("MainActivity","Mode change: "+mode);
+                Log.d("MainActivity", "Mode change: " + mode);
             }
         });
     }
@@ -504,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             nodeDao.insertNode(node);
         }
         Log.d("MainActivity", nodesSplit.length + " nodes read from database");
-        Log.d("MainActivity","# of nodes in the local database: "+nodeDao.getLength());
+        Log.d("MainActivity", "# of nodes in the local database: " + nodeDao.getLength());
         Toast.makeText(MainActivity.this, "Got nodes", Toast.LENGTH_SHORT).show();
 
         return 0;
@@ -549,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             String pa1[] = pave[i].split("-");
             link.bikep = Double.parseDouble(pa1[2]);
             String pa2[] = pavement[i].split("-");
-            link.pave  = Double.parseDouble((pa2[2]));
+            link.pave = Double.parseDouble((pa2[2]));
 
             String pe1[] = pedq[i].split("-");
             link.pedp = Double.parseDouble(pe1[2]);
@@ -585,7 +585,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         Log.d("MainActivity", links.length + " links read from database");
-        Log.d("MainActivity","Number of links in the local database: "+linkDao.getLength());
+        Log.d("MainActivity", "Number of links in the local database: " + linkDao.getLength());
         Toast.makeText(MainActivity.this, "Got links!", Toast.LENGTH_SHORT).show();
         return 0;
     }
@@ -667,8 +667,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (responseMessage == null) {
             Log.w("MainActivity", "Response null");
             return null;
-        }
-        else Log.d("MainActivity", responseMessage.toString());
+        } else Log.d("MainActivity", responseMessage.toString());
 
         try {
             if (responseMessage.has(input)) {
@@ -709,8 +708,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Create a route to the marker from the users position if they are inside the boundary
     private void makeRoute(Location location) {
-        LatLng currP = new LatLng(location.getLatitude(),location.getLongitude());
-        Log.d("MainActivity",location.toString());
+        LatLng currP = new LatLng(location.getLatitude(), location.getLongitude());
+        Log.d("MainActivity", location.toString());
         //LatLng markSP = markerStart.getPosition();
         LatLng markEP = marker.getPosition();
         int currPi = 0;
@@ -730,20 +729,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         List<Float> noiseValues = noiseSlider.getValues();
         double noise = noiseValues.get(0);
 
-        Log.d("MainActivity","Mode: "+mode+" Pave: "+pave+" Elev: "+elev+" Air: "+air+" TT: "+tt+" Temp: "+temp+" Noise: "+noise);
+        Log.d("MainActivity", "Mode: " + mode + " Pave: " + pave + " Elev: " + elev + " Air: " + air + " TT: " + tt + " Temp: " + temp + " Noise: " + noise);
 
         OptPlan theOP = new OptPlan();
         theOP.createPlan(mode, pave, elev, air, tt, temp, noise);
 
         if (norrkopingBounds.contains(currP) && norrkopingBounds.contains(markEP)) {
             //Toast.makeText(MainActivity.this, "Making route", Toast.LENGTH_SHORT).show();
-            currPi = getMin(currP.latitude,currP.longitude);
-            Log.d("MainActivity",nodeDao.getNode(currPi).toString());
-            markPi = getMin(markEP.latitude,markEP.longitude);
-            Log.d("MainActivity",nodeDao.getNode(markPi).toString());
-            path = theOP.getPath(currPi,markPi);
+            currPi = getMin(currP.latitude, currP.longitude);
+            Log.d("MainActivity", nodeDao.getNode(currPi).toString());
+            markPi = getMin(markEP.latitude, markEP.longitude);
+            Log.d("MainActivity", nodeDao.getNode(markPi).toString());
+            path = theOP.getPath(currPi, markPi);
 
-            Log.d("MainActivity",path);
+            Log.d("MainActivity", path);
             displayPath();
         } else {
             if (!norrkopingBounds.contains(currP)) {
@@ -761,7 +760,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         List<Node> nodes = nodeDao.getAllNodes();
 
-        for (int i=0; i<nodes.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             double latN = nodes.get(i).lat;
             double lngN = nodes.get(i).lng;
             double dist = 0.0;
@@ -782,13 +781,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double distance(double lat1, double lat2, double lng1, double lng2) {
         final int R = 6371; // Radius of the earth in km
 
-        double dLat = Math.toRadians(lat2-lat1);
-        double dLng = Math.toRadians(lng2-lng1);
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
 
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
                 * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double dist = R * c * 1000; // Converts to meters
 
         return dist;
@@ -798,9 +797,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String nID[] = path.split("->");
         ArrayList<LatLng> nC = new ArrayList<>();
 
-        for (int i=0; i<nID.length; i++) {
+        for (int i = 0; i < nID.length; i++) {
             Node node = nodeDao.getNode(Integer.parseInt(nID[i].trim()));
-            nC.add(new LatLng(node.lat,node.lng));
+            nC.add(new LatLng(node.lat, node.lng));
         }
 
         if (line != null) {
@@ -811,30 +810,115 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         line.setWidth(10.0f);
         line.setStartCap(new RoundCap());
         line.setEndCap(new SquareCap());
-        line.setColor(Color.argb(255,0,0,0));
+        line.setColor(Color.argb(255, 0, 0, 0));
     }
 
     private void displayLinks() {
         List<Link> links = linkDao.getAllLinks();
 
         if (grid.size() != 0 && grid != null) {
-            for (int i = 0; i<grid.size(); i++) {
+            for (int i = 0; i < grid.size(); i++) {
                 grid.get(i).remove();
             }
             grid.clear();
         }
 
-        for (int i = 0; i<links.size(); i++) {
+        for (int i = 0; i < links.size(); i++) {
             Node s = nodeDao.getNode(links.get(i).source);
             Node d = nodeDao.getNode(links.get(i).destination);
 
             Polyline link = map.addPolyline(new PolylineOptions()
-                    .add(new LatLng(s.lat,s.lng))
-                    .add(new LatLng(d.lat,d.lng)));
+                    .add(new LatLng(s.lat, s.lng))
+                    .add(new LatLng(d.lat, d.lng)));
             link.setWidth(10.0f);
-            link.setColor(Color.argb(25,0,0,0));
+            link.setColor(Color.argb(25, 0, 0, 0));
             grid.add(link);
         }
     }
 
+    public static void submitErrorReport(JSONObject message) {
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        // 1) Convert JSONObject -> string and append '|'
+        String dataToSend = message.toString() + "|";
+        byte[] packetToSend = dataToSend.getBytes();
+
+        // 2) Connect the socket
+        Socket socket = null;
+        PrintStream output = null;
+        InputStream inputStream = null;
+        try {
+            // Use your existing IP & port
+            InetAddress serverAddrIP = InetAddress.getByName(address);
+            socket = new Socket(serverAddrIP, port);
+
+            output = new PrintStream(socket.getOutputStream(), false);
+            inputStream = socket.getInputStream();
+
+            // 3) Send the data
+            output.write(packetToSend);
+            output.flush();
+
+            // 4) Read server response until '|'
+            ByteArrayOutputStream holder = new ByteArrayOutputStream();
+            while (true) {
+                int c = inputStream.read();
+                if (c == -1) {
+                    // End of stream (error or server closed connection)
+                    break;
+                }
+                if (c == '|') {
+                    // Server ended response
+                    break;
+                }
+                holder.write(c);
+            }
+            String response = holder.toString().trim();
+            Log.d("SubmitReport", "Response from server: " + response);
+
+            // 5) Attempt JSON parse
+            JSONObject respJson = null;
+            if (response.startsWith("{") || response.startsWith("[")) {
+                try {
+                    if (response.startsWith("[")) {
+                        // If your server always returns an object, you might need
+                        // to handle arrays differently or parse them
+                        response = response.substring(1, response.length() - 1);
+                    }
+                    respJson = new JSONObject(response);
+                } catch (JSONException e) {
+                    Log.e("SubmitReport", "JSON parse error: " + e);
+                }
+            }
+
+            if (respJson != null) {
+                // The server might store your error report in the DB and respond
+                // with something like {"status":"ok"} or an ID
+                if (respJson.has("status")) {
+                    Log.d("SubmitReport", "Insert status: " + respJson.getString("status"));
+                }
+            }
+
+        } catch (IOException | JSONException e) {
+            Log.e("SubmitReport", "IOException or JSON error: " + e);
+        } finally {
+            // 6) Close resources
+            if (output != null) try {
+                output.close();
+            } catch (Exception e) {
+            }
+            if (inputStream != null) try {
+                inputStream.close();
+            } catch (Exception e) {
+            }
+            if (socket != null) try {
+                socket.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+
 }
+
