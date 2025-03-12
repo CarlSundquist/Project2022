@@ -33,11 +33,13 @@ public class Link {
     public double temp;
     @ColumnInfo(name = "noise")
     public double noise;
+    @ColumnInfo(name="safety")
+    public double safety;
 
     public String toString() {
         String result = "S:"+source+" D:"+destination+" Dist:"+dist;
         result = result + " Elev:"+elev+" Air:"+air+" Pave:"+pave+" PedP:"+pedp+" WcP:"+wcpave;
-        result = result + " TTCo:"+ttcong+" TTCy:"+ttcycle+" TTEl:"+ttelev+" TTWC:"+ttwc+" Temp:"+temp+" Noise:"+noise;
+        result = result + " TTCo:"+ttcong+" TTCy:"+ttcycle+" TTEl:"+ttelev+" TTWC:"+ttwc+" Temp:"+temp+" Noise:"+noise +" Safety:"+safety;
         return result;
     }
 }

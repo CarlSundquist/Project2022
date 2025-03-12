@@ -531,6 +531,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String ttwcpq[] = getData("ttwcpq").split(";");
         String temp[] = getData("temperature").split(";");
         String noise[] = getData("noise").split(";");
+        String safety[] = getData("safety").split(";");
 
         for (int i = 0; i < links.length; i++) {
             Link link = new Link();
@@ -580,6 +581,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             link.noise = Double.parseDouble(no1[2]);
             //link.noise = 0.5;
 
+            String saf1[] = safety[i].split("-");
+            link.safety = Double.parseDouble(saf1[2]);
+
             //Log.d("MainActivity",link.toString());
             linkDao.insertLink(link);
         }
@@ -602,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         JSONObject message = new JSONObject();
         try {
-            message.put("message_type", "project2022");
+            message.put("message_type", "project2025");
             message.put(input, true);
         } catch (JSONException e) {
             Log.e("MainActivity", "JSONException in getData: " + e.toString());

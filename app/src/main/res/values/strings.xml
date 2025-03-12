@@ -20,4 +20,6 @@
     <string name="info">Slide to the right to increase impact of a parameter to the route you get.</string>
     <string name="error_report">Error report</string>
     <string name="felrapport">Felrapport</string>
+    <string name="safety" />
+    <string name="Safety">Safety</string>
 </resources>

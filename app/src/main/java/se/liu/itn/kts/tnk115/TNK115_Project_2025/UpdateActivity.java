@@ -15,6 +15,7 @@ import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.util.Range;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -50,6 +51,7 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -60,11 +62,12 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
     private LocationCallback locationCallback;
     private int source = 0, destination = 0;
     private Polyline activeLink;
-    private double pave, air, temp, noise;
+    private double pave, air, temp, noise, safety;
     private int overall;
     private String address = "130.236.81.13";
     private int port = 8718;
     private boolean send = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +170,7 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
         RangeSlider tempSlider = (RangeSlider) findViewById(R.id.temp_uBar);
         RangeSlider noiseSlider = (RangeSlider) findViewById(R.id.noise_uBar);
         RangeSlider overallSlider = (RangeSlider) findViewById(R.id.overall_uBar);
+        RangeSlider safetySlider = (RangeSlider) findViewById(R.id.safety_uBar);
 
         paveSlider.setValueFrom(0);
         paveSlider.setValueTo(1);
@@ -182,6 +186,10 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
         noiseSlider.setValueTo(1);
         noiseSlider.setValues(0.5f);
 
+        safetySlider.setValueFrom(0);
+        safetySlider.setValueTo(1);
+        safetySlider.setValues(0.5f);
+
         overallSlider.setValueFrom(0);
         overallSlider.setValueTo(10);
         overallSlider.setStepSize(1f);
@@ -195,14 +203,16 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
             air = 0.0;
             temp = 0.0;
             noise = 0.0;
+            safety = 0.0;
         } else {
             Link activeLink = MainActivity.linkDao.getLink(source, destination);
             pave = activeLink.pave;
             air = activeLink.air;
             temp = activeLink.temp;
             noise = activeLink.noise;
+            safety = activeLink.safety;
 
-            Log.d("UpdateActivity", "Old values: Link: " + source + "->" + destination + String.format(" P:%.2f", pave) + String.format(" A:%.2f", air) + String.format(" T:%.2f", temp) + String.format(" N:%.2f", noise));
+            Log.d("UpdateActivity", "Old values: Link: " + source + "->" + destination + String.format(" P:%.2f", pave) + String.format(" A:%.2f", air) + String.format(" T:%.2f", temp) + String.format(" N:%.2f", noise) + String.format(" S:%.2f", safety));
 
             pave = 1.0 - pave;
             paveSlider.setValues((float) pave);
@@ -216,8 +226,11 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
             noise = 1.0 - noise;
             noiseSlider.setValues((float) noise);
 
-            Log.d("UpdateActivity", "Link: " + source + "->" + destination + " P" + activeLink.pave + " A" + activeLink.air + " T" + activeLink.temp + " N" + activeLink.noise);
-            Log.d("UpdateActivity", "Link: " + source + "->" + destination + String.format(" P%.2f", pave) + String.format(" A%.2f", air) + String.format(" T%.2f", temp) + String.format(" N%.2f", noise));
+            safety = 1.0 - safety;
+            safetySlider.setValues((float) safety);
+
+            Log.d("UpdateActivity", "Link: " + source + "->" + destination + " P" + activeLink.pave + " A" + activeLink.air + " T" + activeLink.temp + " N" + activeLink.noise + " S" + activeLink.safety);
+            Log.d("UpdateActivity", "Link: " + source + "->" + destination + String.format(" P%.2f", pave) + String.format(" A%.2f", air) + String.format(" T%.2f", temp) + String.format(" N%.2f", noise) + String.format(" S%.2f", safety));
         }
 
     }
@@ -229,13 +242,14 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
             return;
         }
 
-        Log.d("UpdateActivity","Old values: Link: "+source+"->"+destination+String.format(" Pave:%.2f",pave)+String.format(" Air:%.2f",air)+String.format(" Temp:%.2f",temp)+String.format(" Noise:%.2f",noise));
-        Log.d("UpdateActivity","Before: Link: "+source+"->"+destination+String.format(" Pave:%.2f",pave)+String.format(" Air:%.2f",air)+String.format(" Temp:%.2f",temp)+String.format(" Noise:%.2f",noise));
+        Log.d("UpdateActivity","Old values: Link: "+source+"->"+destination+String.format(" Pave:%.2f",pave)+String.format(" Air:%.2f",air)+String.format(" Temp:%.2f",temp)+String.format(" Noise:%.2f",noise) + String.format(" Safety%.2f", safety));
+        Log.d("UpdateActivity","Before: Link: "+source+"->"+destination+String.format(" Pave:%.2f",pave)+String.format(" Air:%.2f",air)+String.format(" Temp:%.2f",temp)+String.format(" Noise:%.2f",noise) + String.format(" Safety%.2f", safety));
 
         double pN = 100.0;
         double aN = 100.0;
         double tN = 100.0;
         double nN = 100.0;
+        double sN = 100.0;
 
         RangeSlider paveSlider = (RangeSlider) findViewById(R.id.pave_uBar);
         List<Float> paveValues = paveSlider.getValues();
@@ -269,17 +283,24 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
         }
         //noise = newValue(nV, noise);
 
+        RangeSlider safetySlider = (RangeSlider) findViewById(R.id.safety_uBar);
+        List<Float> safetyValues = safetySlider.getValues();
+        double sV = safetyValues.get(0);
+        if (sV != safety) {
+            sN = 1.0-sV;
+        }
+
         RangeSlider overallSlider = (RangeSlider) findViewById(R.id.overall_uBar);
         List<Float> overallValues = overallSlider.getValues();
         overall = Math.round(overallValues.get(0));
 
-        Log.d("UpdateActivity","After : Link: "+source+"->"+destination+String.format(" Pave:%.2f",pV)+String.format(" Air:%.2f",aV)+String.format(" Temp:%.2f",tV)+String.format(" Noise:%.2f",nV));
-        Log.d("UpdateActivity","Sending : Link: "+source+"->"+destination+String.format(" Pave:%.2f",pN)+String.format(" Air:%.2f",aN)+String.format(" Temp:%.2f",tN)+String.format(" Noise:%.2f",nN)+" Overall:"+overall);
+        Log.d("UpdateActivity","After : Link: "+source+"->"+destination+String.format(" Pave:%.2f",pV)+String.format(" Air:%.2f",aV)+String.format(" Temp:%.2f",tV)+String.format(" Noise:%.2f",nV)+String.format(" Safety:%.2f",sN));
+        Log.d("UpdateActivity","Sending : Link: "+source+"->"+destination+String.format(" Pave:%.2f",pN)+String.format(" Air:%.2f",aN)+String.format(" Temp:%.2f",tN)+String.format(" Noise:%.2f",nN)+String.format(" Safety:%.2f",sN)+" Overall:"+overall);
         //Log.d("UpdateActivity","Old values: Link: "+source+"->"+destination+String.format(" Pave:%.2f",pave)+String.format(" Air:%.2f",air)+String.format(" Temp:%.2f",temp)+String.format(" Noise:%.2f",noise));
 
         if (send) {
             send = false;
-            getLastKnownLocation(pN, aN, tN, nN);
+            getLastKnownLocation(pN, aN, tN, nN, sN);
             Toast.makeText(this, "Values sent", Toast.LENGTH_SHORT).show();
         } else {
             Log.d("UpdateActivity","Data not sent due to already sent data for the specific link.");
@@ -407,7 +428,7 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     // Get last location and start the make route process
-    protected void getLastKnownLocation(double p, double a, double t, double n) {
+    protected void getLastKnownLocation(double p, double a, double t, double n, double s) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -424,7 +445,7 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
                     Log.d("UpdateActivity", "Updating GUI with last known location.");
-                    sendUpdate(p, a, t, n, location);
+                    sendUpdate(p, a, t, n, s, location);
                 } else {
                     Log.d("UpdateActivity", "getLastKnownLocation null...");
                 }
@@ -433,7 +454,7 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     // Transmit data between database and local unit
-    private void sendUpdate(double p, double a, double t, double n, Location location) {
+    private void sendUpdate(double p, double a, double t, double n, double s, Location location) {
 
         TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
 
@@ -466,7 +487,7 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
 
         JSONObject message = new JSONObject();
         try {
-            message.put("message_type", "project2022update");
+            message.put("message_type", "project2025update");
             JSONObject update = new JSONObject();
             message.put("update",update);
 
@@ -477,6 +498,7 @@ public class UpdateActivity extends AppCompatActivity implements OnMapReadyCallb
             update.put("air",String.format("%.2f",a));
             update.put("temp",String.format("%.2f",t));
             update.put("noise",String.format("%.2f",n));
+            update.put("safety",String.format("%.2f",s));
             update.put("overall",Integer.toString(overall));
 
             JSONObject locationData = new JSONObject();

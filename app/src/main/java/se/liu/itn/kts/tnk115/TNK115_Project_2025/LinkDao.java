@@ -74,6 +74,12 @@ public interface LinkDao {
     @Query("SELECT noise FROM link ORDER BY noise ASC LIMIT 1")
     public double getMinNoise();
 
+    @Query("SELECT safety FROM link ORDER BY safety DESC LIMIT 1")
+    public double getMaxSafety();
+
+    @Query("SELECT safety FROM link ORDER BY safety ASC LIMIT 1")
+    public double getMinSafety();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertAllLinks(Link... link);
 

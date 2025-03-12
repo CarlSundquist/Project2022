@@ -16,8 +16,8 @@ public class OptPlan {
     private Dijkstra dijkstra;
     private double cost;
     private double minDist, maxDist, minAir, maxAir, minPave, maxPave, minElev, maxElev, minTT, maxTT;
-    private double paveNorm, elevNorm, airNorm, distNorm, ttNorm;
-    private double minTemp, maxTemp, tempNorm, minNoise, maxNoise, noiseNorm;
+    private double paveNorm, elevNorm, airNorm, distNorm, ttNorm, safetyNorm;
+    private double minTemp, maxTemp, tempNorm, minNoise, maxNoise, noiseNorm, maxSafety, minSafety;
 
     public OptPlan() {
         this.nodeList = null;
@@ -95,6 +95,9 @@ public class OptPlan {
             minNoise = MainActivity.linkDao.getMinNoise();
             maxNoise = MainActivity.linkDao.getMaxNoise();
             Log.d("OptPlan","Noise: "+minNoise+", "+maxNoise);
+            minSafety = MainActivity.linkDao.getMinSafety();
+            maxSafety = MainActivity.linkDao.getMaxSafety();
+            Log.d("OptPlan","Noise: "+minNoise+", "+maxNoise);
 
             minTT = Double.MAX_VALUE;
             maxTT = Double.MIN_VALUE;
@@ -130,11 +133,12 @@ public class OptPlan {
                 ttNorm = norm(tt.get(i),maxTT,minTT);
                 tempNorm = norm(linkList.get(i).temp,maxTemp,minTemp);
                 noiseNorm = norm(linkList.get(i).noise,maxNoise,minNoise);
+                safetyNorm = norm(linkList.get(i).safety,maxSafety,minSafety);
 
                 if (mode == 2 && linkList.get(i).wcpave >= 5.0) {
-                    cost = ((paveNorm*paveRate+elevNorm*elevRate+airNorm*airRate+noiseNorm*noiseRate+tempNorm*tempRate)*distNorm+ttNorm*ttRate+1000.0);
+                    cost = ((paveNorm*paveRate+elevNorm*elevRate+airNorm*airRate+noiseNorm*noiseRate+tempNorm*tempRate*safetyNorm*5)*distNorm+ttNorm*ttRate+1000.0);
                 } else {
-                    cost = ((paveNorm*paveRate+elevNorm*elevRate+airNorm*airRate+noiseNorm*noiseRate+tempNorm*tempRate)*distNorm+ttNorm*ttRate);
+                    cost = ((paveNorm*paveRate+elevNorm*elevRate+airNorm*airRate+noiseNorm*noiseRate+tempNorm*tempRate)*distNorm+ttNorm*ttRate+safetyNorm*5);
                 }
 
                 //Log.d("OptPlan","S:"+linkList.get(i).source+"->D:"+linkList.get(i).destination+" Path cost: "+cost);

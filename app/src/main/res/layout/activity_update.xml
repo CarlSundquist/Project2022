@@ -6,17 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".UpdateActivity">
 
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/safety_uBar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="34dp"
+        android:layout_marginBottom="13dp"
+        android:max="10"
+        android:progress="3"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_update_horizontal_3"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_update_vertical"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="13dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="60dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonUpdate"
         app:layout_constraintEnd_toStartOf="@+id/overall_uBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temp_uBar"
+        app:layout_constraintStart_toEndOf="@+id/guideline_update_vertical"
         app:srcCompat="@drawable/ic_sad_dark" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -94,11 +109,12 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="40dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="86dp"
         android:max="10"
         android:progress="3"
-        app:layout_constraintBottom_toTopOf="@+id/overall_uBar"
+        app:layout_constraintBottom_toTopOf="@+id/editTextText"
         app:layout_constraintEnd_toStartOf="@+id/guideline_update_vertical"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pave_uBar" />
 
@@ -164,20 +180,20 @@
         app:layout_constraintBottom_toTopOf="@+id/noise_uBar"
         app:layout_constraintEnd_toEndOf="parent" />
 
+
     <com.google.android.material.slider.RangeSlider
         android:id="@+id/overall_uBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="48dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:max="10"
         android:progress="3"
         app:layout_constraintBottom_toTopOf="@id/guideline_update_horizontal_3"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView2"
         app:layout_constraintTop_toBottomOf="@+id/noise_uBar" />
 
     <TextView
@@ -191,8 +207,8 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/overall_uBar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.883"
         app:layout_constraintStart_toStartOf="parent" />
-
 
     <Button
         android:id="@+id/buttonUpdate"
@@ -261,5 +277,22 @@
         app:layout_constraintStart_toEndOf="@+id/overall_uBar"
         app:layout_constraintTop_toBottomOf="@+id/noise_uBar"
         app:srcCompat="@drawable/ic_smile_dark" />
+
+    <EditText
+        android:id="@+id/editTextText"
+        android:layout_width="210dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="88dp"
+        android:layout_marginBottom="52dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Safety"
+        app:layout_constraintBottom_toTopOf="@+id/safety_uBar"
+        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/temp_uBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
